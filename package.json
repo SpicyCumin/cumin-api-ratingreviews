@@ -1,0 +1,32 @@
+{
+  "name": "cumin-api-ratingreviews",
+  "version": "1.0.0",
+  "description": "microservice for reviews to the cumin-client",
+  "main": "app.js",
+  "scripts": {
+    "server:dev": "nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SpicyCumin/cumin-api-ratingreviews.git"
+  },
+  "author": "Ian Bringe",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SpicyCumin/cumin-api-ratingreviews/issues"
+  },
+  "homepage": "https://github.com/SpicyCumin/cumin-api-ratingreviews#readme",
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  },
+  "dependencies": {
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "csv-parser": "^3.0.0",
+    "heapdump": "^0.3.15",
+    "koa": "^2.13.4",
+    "mongoose": "^6.3.0",
+    "sequelize": "^6.19.0"
+  }
+}
