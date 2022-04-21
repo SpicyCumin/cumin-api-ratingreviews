@@ -37,23 +37,9 @@ async function* metaGenStream(streamFile) {
 
 async function* reviewGenStream(streamFile) {
   const stream = makeGenStream(streamFile)
-
-  let reviews = []
-  let product_id;
-
   for await (let chunk of stream) {
-
-    product_id = !product_id && chunk.product_id
-    if (chunk.product_id === product_id) {
-      reviews.push(chunk)
-    }
-    else {
-      yield reviews
-      reviews = [chunk]
-      product_id = chunk.product_id
-    }
+    yield chunk
   }
-
 }
 
 async function* photoGenStream(streamFile) {
@@ -92,42 +78,41 @@ async function hydrate() {
   let photos = await photoGen.next()
   let mem = process.memoryUsage()
   let loops = 0
-  let createdMetas = 0
   let createdReviews = 0
   let createdPhotos = 0
+  let createdMetas = 0
 
-  let newPhotos = [];
   let newReviews = [];
-  let newMeta;
 
   while (!reviews.done) {
 
 
-    newMeta = await this.create.metas(meta.value)
-
-    reviews.value.forEach(async (review) => {
-
-      review.meta_id = newMeta._id
-      let newReview = await this.create.reviews(review)
-      photos.value.forEach(async (photo) => {
-        photo.review_id = photo.review_id === newReview.review_id ? newReview._id : photo.review_id;
-      })
-
-    })
-
-    // photos.value.forEach(async photo => {
-    //   newPhotos = await this.create.photos(photo)
-    // })
-    await this.create.many.photos(photos.value)
-
-    createdPhotos += photos.value.length
-    createdReviews += reviews.value.length
-    createdMetas++
 
 
-    reviews = await reviewGen.next()
-    meta =  await metaGen.next()
-    photos =  await photoGen.next()
+    if (review.value.id === photos.value[0].review_id) {
+      photos.value.forEach(photo => photo.review_id = review.value.id )
+      await this.create.many.photos(photos.value)
+      createdPhotos += photos.value.length
+      photos = !photos.done ?  await photoGen.next() : photos
+    }
+    if (review.value.id === meta.value.review_id) {
+      meta.value.review_id = review.value.id
+      review.value.meta_id = meta.value.id
+      await this.create.metas(meta.value)
+      createdMetas++
+      meta = !meta.done ?  await metaGen.next() : meta
+    }
+
+    !review.done && newReviews.push(review.value)
+    if (newReviews.length === bulkWriteAt || review.done) {
+      await this.create.many.reviews(newReviews)
+      createdReviews += newReviews.length
+      newReviews = []
+    }
+
+    review = !review.done ?  await reviewGen.next() : review
+
+
 
     if ( !(loops % loopLog)) {
       console.log(`\n\nloopped ${loops} times`)

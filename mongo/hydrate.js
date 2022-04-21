@@ -83,12 +83,14 @@ async function hydrate() {
 
 
     if (review.value.id === photos.value[0].review_id) {
-      review.value.photos = photos.value;
-      photos = !photos.done ?  await photoGen.next() : photos
+      review.value.photos = photos.value ? photos.value : [];
+      this.create.many.photos(photos.value)
+      photos = await photoGen.next()
     }
     if (review.value.id === meta.value.review_id) {
-      review.value.meta = meta.value;
-      meta = !meta.done ?  await metaGen.next() : meta
+      review.value.meta = meta.value ? [meta.value] : [];
+      this.create.metas(meta.value)
+      meta = await metaGen.next()
     }
     !review.done && newReviews.push(review.value)
     if (newReviews.length === bulkWriteAt || review.done) {
@@ -97,7 +99,7 @@ async function hydrate() {
       newReviews = []
     }
 
-    review = !review.done ?  await reviewGen.next() : review
+    review = await reviewGen.next()
 
     if ( !(loops % logAt)) {
       console.log(`\n\nReviewsCreated ${reviewsCreated}  metasCreated ${metasCreated}`)
@@ -105,6 +107,8 @@ async function hydrate() {
     }
     loops++
   }
+  await this.create.many.reviews(newReviews)
+
   console.log('\n ---DONE---- ')
   return true
 }
