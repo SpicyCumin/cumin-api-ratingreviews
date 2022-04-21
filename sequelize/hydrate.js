@@ -3,7 +3,6 @@
 const fs = require('fs');
 const { pipeline } = require('stream');
 const csv = require('csv-parser')
-const heapdump = require('heapdump');
 const path = require('path')
 
 const csvDir = '/Users/ian/Downloads'
@@ -11,12 +10,6 @@ const reviewCSV = path.join(csvDir, "/reviews.csv")
 const metaCSV = path.join(csvDir, "/metas.csv")
 const photoCSV = path.join(csvDir, "/photos.csv")
 
-const heapSnapShots = `./../../heapSnapshots`
-async function snapHeap() {
-  heapdump.writeSnapshot(function(err, heapSnapShots) {
-    console.log('dump written to', heapSnapShots);
-  });
-}
 
 
 function makeGenStream(streamFile) {
@@ -143,7 +136,6 @@ async function hydrate() {
       console.log(`Done? review ${reviews.done} meta ${meta.done} photos ${photos.done}`)
       // mem = process.memoryUsage()
       // console.log(`Mem use \nrss:${mem.rss} \nheapMax: ${mem.heapTotal} heapUsed:${mem.heapUsed}  \narrayBuffers:${mem.arrayBuffers}`)
-      // snapHeap()
     }
     loops++
   }

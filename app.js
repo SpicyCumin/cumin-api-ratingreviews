@@ -8,7 +8,8 @@ const logger = require('koa-pino-logger')
 
 
 const app = new Koa();
-app.use(logger())
+app.silent = true // disable console.errors
+// app.use(logger())
 app.use(compress({
   filter (content_type) {
   	return /text/i.test(content_type)
@@ -26,7 +27,7 @@ app.use(compress({
 
 
 const db = require('./db/index.js')
-
+console.log('app.js db', db)
 
 const fakeMeta = {
   characteristics:{
@@ -53,22 +54,27 @@ const fakeDb = {
   }
 }
 
-
+// db.reviews.find({product_id: 317311})
 
 app.use(async (ctx, next) => {
   ctx.state.start = Date.now()
-  ctx.log.info('API start')
+  // ctx.log.info('API start')
+  // console.log(ctx.log)
   const { request, response } = ctx
 
   const requests = ctx.path.split(/\//g).filter(str => !!str.length)
   const { product_id } = ctx.query
-  ctx.state.data = await fakeDb[ctx.method][requests[0]](product_id)
+  console.log(`\n\nproduct_id: ${product_id} requests: ${requests}`)
+  // ctx.log.info(`\n\nproduct_id: ${product_id} requests: ${requests}\n\n`)
+  // ctx.state.data = await fakeDb[ctx.method][requests[0]](product_id)
+  ctx.state.data = await db[ctx.method][requests[0]]({ product_id })
+
   next()
 
 })
 
 app.use(async (ctx, next) => {
-
+  console.log('ctx.state.data', ctx.state.data)
   if(ctx.state.data) {
     ctx.body = JSON.stringify(ctx.state.data)
     ctx.status = 200
