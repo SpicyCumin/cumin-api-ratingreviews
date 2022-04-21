@@ -19,7 +19,6 @@ function makeGenStream(streamFile) {
   })
   .on('end', function(err) {
     console.log(`\n\n ----Stream from ${streamFile} ended----\n\n`);
-    stream.close()
   })
   .on('close', function(err) {
     console.log(`\n\n ----Stream ${streamFile} closed----\n\n`);
