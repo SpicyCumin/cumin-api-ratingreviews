@@ -4,8 +4,8 @@
   "description": "microservice for reviews to the cumin-client",
   "main": "app.js",
   "scripts": {
-    "server:dev": "nodemon app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "server:dev": "env-cmd -f .env.config nodemon app.js",
+    "server:start": "env-cmd -f .env.config node app.js"
   },
   "repository": {
     "type": "git",
@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "csv-parser": "^3.0.0",
+    "env-cmd": "^10.1.0",
     "koa": "^2.13.4",
     "koa-compress": "^5.1.0",
     "koa-pino-logger": "^4.0.0",

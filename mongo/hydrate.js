@@ -4,7 +4,8 @@ const fs = require('fs');
 const csv = require('csv-parser')
 const path = require('path')
 
-const csvDir = '/Users/ian/Downloads'
+const csvDir = process.env.CSV_DIR
+console.log('csvDir', csvDir)
 const reviewCSV = path.join(csvDir, "/reviews.csv")
 const metaCSV = path.join(csvDir, "/metas.csv")
 const photoCSV = path.join(csvDir, "/photos.csv")
