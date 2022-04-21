@@ -1,8 +1,10 @@
 "use strict";
 
 const fs = require('fs');
+const { pipeline } = require('stream');
 const csv = require('csv-parser')
 const path = require('path')
+
 
 const csvDir = process.env.CSV_DIR
 console.log('csvDir', csvDir)
@@ -19,7 +21,6 @@ function makeGenStream(streamFile) {
   })
   .on('end', function(err) {
     console.log(`\n\n ----Stream from ${streamFile} ended----\n\n`);
-    // stream.destroy()
   })
   .on('close', function(err) {
     console.log(`\n\n ----Stream ${streamFile} closed----\n\n`);
@@ -27,46 +28,46 @@ function makeGenStream(streamFile) {
   return stream
 }
 
-async function* genStream(streamFile) {
-  const stream = makeGenStream(streamFile)
 
+
+async function* reviewGenStream(streamFile) {
+  const stream = makeGenStream(streamFile)
   for await (let chunk of stream) {
     yield chunk
   }
 }
 
-async function* photoGenStream(streamFile) {
+async function* genManyStream(streamFile) {
   const stream = makeGenStream(streamFile)
-  let photos = []
-  let id;
+  let items = []
+  let review_id;
 
   for await (let chunk of stream) {
-
-    id = !id && chunk.id
-    if (chunk.id === id) {
-      photos.push(chunk)
+    chunk.review_id = chunk.review_id ? chunk.review_id : review_id
+    review_id = review_id ? review_id : chunk.review_id
+    if (chunk.review_id === review_id) {
+      items.push(chunk)
     }
     else {
-      // console.log('new photos', photos)
-      yield photos
-      photos = [chunk]
-      id = chunk.id
+
+      yield items
+      items = [chunk]
+      review_id = chunk.review_id
     }
   }
 }
 
-const bulkWriteAt = 5000
-const logAt = 25000
+const loopLog = 10000
+const bulkWriteAt = 5000;
 
 async function hydrate() {
   console.log('running hydrate')
-  const reviewGen = genStream(reviewCSV)
-  const metaGen = genStream(metaCSV)
-  const photoGen = photoGenStream(photoCSV)
+  const reviewGen = reviewGenStream(reviewCSV)
+  const metaGen = genManyStream(metaCSV)
+  const photoGen = genManyStream(photoCSV)
   console.log('reviewGen', reviewGen)
   console.log('metaGen', metaGen)
   console.log('photoGen', photoGen)
-
 
   let review = await reviewGen.next()
   let meta = await metaGen.next()
@@ -88,7 +89,7 @@ async function hydrate() {
       this.create.many.photos(photos.value)
       photos = await photoGen.next()
     }
-    if (review.value.id === meta.value.review_id) {
+    if (review.value.id === meta.value[0].review_id) {
       review.value.meta = meta.value ? [meta.value] : [];
       this.create.metas(meta.value)
       meta = await metaGen.next()

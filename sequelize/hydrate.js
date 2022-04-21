@@ -28,13 +28,6 @@ function makeGenStream(streamFile) {
   return stream
 }
 
-async function* metaGenStream(streamFile) {
-
-  const stream = makeGenStream(streamFile)
-  for await (let chunk of stream) {
-    yield chunk
-  }
-}
 
 
 async function* reviewGenStream(streamFile) {
@@ -44,20 +37,21 @@ async function* reviewGenStream(streamFile) {
   }
 }
 
-async function* photoGenStream(streamFile) {
+async function* genManyStream(streamFile) {
   const stream = makeGenStream(streamFile)
-  let photos = []
+  let items = []
   let review_id;
 
   for await (let chunk of stream) {
-
-    review_id = !review_id && chunk.review_id
+    chunk.review_id = chunk.review_id ? chunk.review_id : review_id
+    review_id = review_id ? review_id : chunk.review_id
     if (chunk.review_id === review_id) {
-      photos.push(chunk)
+      items.push(chunk)
     }
     else {
-      yield photos
-      photos = [chunk]
+
+      yield items
+      items = [chunk]
       review_id = chunk.review_id
     }
   }
@@ -70,9 +64,9 @@ async function hydrate() {
   this.sequelize.options.logging = false
   console.log('Turned off auto db insert logging')
   console.log('running hydrate')
-  const metaGen = metaGenStream(metaCSV)
   const reviewGen = reviewGenStream(reviewCSV)
-  const photoGen = photoGenStream(photoCSV)
+  const metaGen = genManyStream(metaCSV)
+  const photoGen = genManyStream(photoCSV)
   console.log('reviewGen', reviewGen)
   console.log('metaGen', metaGen)
   console.log('photoGen', photoGen)
@@ -92,29 +86,29 @@ async function hydrate() {
   while (!review.done) {
 
 
+    if (review.value.id.toString() === photos.value[0].review_id.toString()) {
 
-
-    if (review.value.id === photos.value[0].review_id) {
-      photos.value.forEach(photo => photo.review_id = review.value.id )
       await this.create.many.photos(photos.value)
       createdPhotos += photos.value.length
-      photos = !photos.done ?  await photoGen.next() : photos
+      photos = await photoGen.next()
     }
-    if (review.value.id === meta.value.review_id) {
-      meta.value.review_id = review.value.id
+    if (review.value.id.toString() === meta.value[0].review_id.toString()) {
+      console.log('\n\nmatched meta ', meta.value)
+
       review.value.meta_id = meta.value.id
       await this.create.metas(meta.value)
       createdMetas++
-      meta = !meta.done ?  await metaGen.next() : meta
+      meta = await metaGen.next()
     }
 
-    !review.done && newReviews.push(review.value)
-    if (newReviews.length === bulkWriteAt || review.done) {
-      await this.create.many.reviews(newReviews)
-      createdReviews += newReviews.length
-      newReviews = []
-    }
-
+    // !review.done && newReviews.push(review.value)
+    // if (newReviews.length === bulkWriteAt || review.done) {
+    //   await this.create.many.reviews(newReviews)
+    //   createdReviews += newReviews.length
+    //   newReviews = []
+    // }
+    await this.create.reviews(review.value)
+    createdReviews++
     review = !review.done ?  await reviewGen.next() : review
 
 
