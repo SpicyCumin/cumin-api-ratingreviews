@@ -93,7 +93,6 @@ async function hydrate() {
       photos = await photoGen.next()
     }
     if (review.value.id.toString() === meta.value[0].review_id.toString()) {
-      console.log('\n\nmatched meta ', meta.value)
 
       review.value.meta_id = meta.value.id
       await this.create.metas(meta.value)
