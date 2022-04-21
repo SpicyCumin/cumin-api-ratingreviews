@@ -15,15 +15,15 @@ const createNew =  (newDocuments, modelName, save = true) => {
 
 
 const createReviews = (newReviews, save) => {
-    return createNew(newReviews, 'Reviews', save)
+    return createNew(newReviews, 'reviews', save)
 }
 
 const createMetas = (newMeta, save) => {
-  return createNew(newMeta, 'Metas', save)
+  return createNew(newMeta, 'metas', save)
 }
 
 const createPhotos = (newPhotos, save) => {
-  return createNew(newPhotos, 'Photos')
+  return createNew(newPhotos, 'photos')
 }
 
 const createMany =  (newDocuments, modelName, save = true) => {
@@ -36,15 +36,15 @@ const createMany =  (newDocuments, modelName, save = true) => {
 
 
 const createManyReviews = (newReviews, save) => {
-    return createMany(newReviews, 'Reviews', save)
+    return createMany(newReviews, 'reviews', save)
 }
 
 const createManyMetas = (newMeta, save) => {
-  return createMany(newMeta, 'Metas', save)
+  return createMany(newMeta, 'metas', save)
 }
 
 const createManyPhotos = (newPhotos, save) => {
-  return createMany(newPhotos, 'Photos')
+  return createMany(newPhotos, 'photos')
 }
 
 

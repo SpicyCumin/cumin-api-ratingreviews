@@ -3,17 +3,17 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class Metas extends Model {
+  class metas extends Model {
 
     static associate(models) {
-      this.reviews = this.hasMany(models.Reviews)
+      this.reviews = this.hasMany(models.reviews)
     }
 
   }
-  Metas.init({
+  metas.init({
     product_id: {
       type: DataTypes.STRING,
-      allowNull: false
+      default: -1,
     },
     ratings: {
       type: DataTypes.JSON,
@@ -36,9 +36,9 @@ module.exports = (sequelize, DataTypes) => {
 
   }, {
     sequelize,
-    modelName: 'Metas',
+    modelName: 'metas',
   });
-  return Metas;
+  return metas;
 };
 
 

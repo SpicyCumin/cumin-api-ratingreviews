@@ -1,25 +1,25 @@
 'use strict';
+const RandomId = () => {
+  return Math.round((Math.random() * 100000))
+}
+
 const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class Reviews extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
+  class reviews extends Model {
+
     static associate(models) {
       // define association here
-      this.meta_id = this.belongsTo(models.Metas)
-      this.photos = this.hasMany(models.Photos)
+      this.meta_id = this.belongsTo(models.metas)
+      this.photos = this.hasMany(models.photos)
     }
   }
-  Reviews.init({
+  reviews.init({
     review_id: {
       type: DataTypes.STRING,
-      primaryKey: true,
-      allowNull: false,
+      // primaryKey: true,
+      default: RandomId(),
     },
     product_id: {
       type: DataTypes.STRING,
@@ -32,11 +32,11 @@ module.exports = (sequelize, DataTypes) => {
 
 
     summary: {
-      type: DataTypes.STRING(60),
+      type: DataTypes.STRING(256),
       allowNull: false,
     },
     body: {
-      type: DataTypes.STRING(1000),
+      type: DataTypes.STRING(1024),
       allowNull: false,
     },
     response: {
@@ -60,7 +60,7 @@ module.exports = (sequelize, DataTypes) => {
 
   }, {
     sequelize,
-    modelName: 'Reviews',
+    modelName: 'reviews',
   });
-  return Reviews;
+  return reviews;
 };

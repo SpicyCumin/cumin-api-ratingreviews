@@ -1,7 +1,7 @@
 "use strict";
 
 const create = require('./create')
-const { Reviews, Metas, Photos }  = require('./models/index');
+const { reviews, metas, photos, sequelize } = require('./models/index');
 const { checkForHydration, hydrate } = require('./hydrate')
 
 
@@ -27,7 +27,7 @@ find.review = (newReview => create(newReview))
 
 
 
-const db = { find, create, Reviews, Metas, checkForHydration, hydrate }
+const db = { find, create, reviews, metas, photos, sequelize, checkForHydration, hydrate }
 
 db.hydrate.bind(db)
 db.checkForHydration.bind(db)

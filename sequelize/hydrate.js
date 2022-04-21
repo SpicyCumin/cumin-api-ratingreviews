@@ -108,16 +108,16 @@ async function hydrate() {
   let newReviews = [];
   let newMeta;
 
-  while (!review.done) {
+  while (!reviews.done) {
 
 
     newMeta = await this.create.metas(meta.value)
 
-    reviews.value.forEach(review => {
+    reviews.value.forEach(async (review) => {
 
       review.meta_id = newMeta._id
-      newReview = await this.create.reviews(review)
-      photos.value.forEach(async photo => {
+      let newReview = await this.create.reviews(review)
+      photos.value.forEach(async (photo) => {
         photo.review_id = photo.review_id === newReview.review_id ? newReview._id : photo.review_id;
       })
 
@@ -140,7 +140,7 @@ async function hydrate() {
     if ( !(loops % loopLog)) {
       console.log(`\n\nloopped ${loops} times`)
       console.log(`createdReviews ${createdReviews}  createdPhotos ${createdPhotos}  createdMetas ${createdMetas}`)
-      console.log(`Done? review ${review.done} meta ${meta.done} photos ${photos.done}`)
+      console.log(`Done? review ${reviews.done} meta ${meta.done} photos ${photos.done}`)
       // mem = process.memoryUsage()
       // console.log(`Mem use \nrss:${mem.rss} \nheapMax: ${mem.heapTotal} heapUsed:${mem.heapUsed}  \narrayBuffers:${mem.arrayBuffers}`)
       // snapHeap()
@@ -155,8 +155,10 @@ async function hydrate() {
 
 
 
-function checkForHydration() {
+async function checkForHydration() {
   console.log('Checking DB for data sequelize ', this)
+  // await this.sequelize.authenticate()
+  await this.sequelize.sync({ force: true })
   this.hydrate()
 }
 
