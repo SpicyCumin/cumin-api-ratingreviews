@@ -27,7 +27,7 @@ app.use(compress({
 
 
 const db = require('./db/index.js')
-console.log('app.js db', db)
+console.log('app.js db keys: ', Object.keys(db))
 
 const fakeMeta = {
   characteristics:{

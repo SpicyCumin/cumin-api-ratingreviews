@@ -5,6 +5,7 @@ const { pipeline } = require('stream');
 const csv = require('csv-parser')
 const path = require('path')
 
+
 const csvDir = process.env.CSV_DIR
 console.log('csvDir', csvDir)
 const reviewCSV = path.join(csvDir, "/reviews.csv")
@@ -63,8 +64,11 @@ async function* photoGenStream(streamFile) {
 }
 
 const loopLog = 5000
+const bulkWriteAt = 1000;
 
 async function hydrate() {
+  this.sequelize.options.logging = false
+  console.log('Turned off auto db insert logging')
   console.log('running hydrate')
   const metaGen = metaGenStream(metaCSV)
   const reviewGen = reviewGenStream(reviewCSV)
@@ -75,7 +79,7 @@ async function hydrate() {
 
 
   let meta = await metaGen.next()
-  let reviews = await reviewGen.next()
+  let review = await reviewGen.next()
   let photos = await photoGen.next()
   let mem = process.memoryUsage()
   let loops = 0
@@ -85,7 +89,7 @@ async function hydrate() {
 
   let newReviews = [];
 
-  while (!reviews.done) {
+  while (!review.done) {
 
 
 
@@ -118,13 +122,15 @@ async function hydrate() {
     if ( !(loops % loopLog)) {
       console.log(`\n\nloopped ${loops} times`)
       console.log(`createdReviews ${createdReviews}  createdPhotos ${createdPhotos}  createdMetas ${createdMetas}`)
-      console.log(`Done? review ${reviews.done} meta ${meta.done} photos ${photos.done}`)
+      console.log(`Done? review ${review.done} meta ${meta.done} photos ${photos.done}`)
       // mem = process.memoryUsage()
       // console.log(`Mem use \nrss:${mem.rss} \nheapMax: ${mem.heapTotal} heapUsed:${mem.heapUsed}  \narrayBuffers:${mem.arrayBuffers}`)
     }
     loops++
   }
   console.log('\n ---DONE---- ')
+  this.sequelize.options.logging = true
+  console.log('Turned on auto db insert logging')
   return true
 }
 
@@ -133,9 +139,11 @@ async function hydrate() {
 
 
 async function checkForHydration() {
-  console.log('Checking DB for data sequelize ', this)
+  console.log('Starting DB sync')
   // await this.sequelize.authenticate()
   await this.sequelize.sync({ force: true })
+  console.log('DB synced')
+  console.log('Checking DB for data sequelize')
   this.hydrate()
 }
 
