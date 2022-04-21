@@ -1,4 +1,7 @@
 'use strict';
+const RandomId = () => {
+  return Math.round((Math.random() * 100000)).toString()
+}
 const {
   Model
 } = require('sequelize');
@@ -16,7 +19,8 @@ module.exports = (sequelize, DataTypes) => {
   photos.init({
     id: {
       type: DataTypes.STRING,
-      default: null,
+      default: RandomId(),
+      primaryKey: true,
     },
     url: {
       type: DataTypes.STRING,

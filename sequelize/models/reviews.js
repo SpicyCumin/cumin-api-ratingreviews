@@ -1,6 +1,6 @@
 'use strict';
 const RandomId = () => {
-  return Math.round((Math.random() * 100000))
+  return Math.round((Math.random() * 100000)).toString()
 }
 
 const {
