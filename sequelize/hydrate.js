@@ -122,6 +122,8 @@ async function hydrate() {
     loops++
   }
   console.log('\n ---DONE---- ')
+  console.log(`createdReviews ${createdReviews}  createdPhotos ${createdPhotos}  createdMetas ${createdMetas}`)
+  console.log(`Done? review ${review.done} meta ${meta.done} photos ${photos.done}`)
   this.sequelize.options.logging = true
   console.log('Turned on auto db insert logging')
   return true
@@ -143,7 +145,7 @@ async function checkForHydration() {
 module.exports = { hydrate, checkForHydration }
 
 //  node --max_old_space_size=400 app.js
-//   clinic heapprofiler -- node --max_old_space_size=400 app.js
+//  clinic heapprofiler -- node --max_old_space_size=400 app.js
 //  clinic doctor -- node --max_old_space_size=400 app.js
 
 

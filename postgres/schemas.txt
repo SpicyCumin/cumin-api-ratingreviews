@@ -1,0 +1,240 @@
+CREATE DATABASE sdc;
+
+DROP TABLE IF EXISTS products CASCADE;
+DROP TABLE IF EXISTS reviews CASCADE;
+DROP TABLE IF EXISTS metas CASCADE;
+DROP TABLE IF EXISTS photos CASCADE;
+DROP TABLE IF EXISTS characteristics CASCADE;
+
+
+
+
+
+
+CREATE TABLE reviews (
+  review_id SERIAL PRIMARY KEY,
+  product_id INT,
+  rating INT,
+  date BIGINT,
+  summary TEXT,
+  body TEXT,
+  recommend TEXT,
+  reported TEXT,
+  reviewer_name TEXT,
+  reviewer_email TEXT,
+  response TEXT,
+  helpfulness TEXT,
+  review_photos TEXT[],
+  CONSTRAINT fk_product
+  FOREIGN KEY (product_id)
+  REFERENCES products(product_id)
+  ON DELETE CASCADE
+);
+
+COPY reviews (review_id, product_id, rating, date, summary, body, recommend, reported,
+reviewer_name, reviewer_email, response, helpfulness) FROM '/Users/ian/Downloads/reviews.csv'
+DELIMITERS ',' CSV header;
+
+CREATE INDEX reviews_products on reviews USING hash(product_id);
+
+
+
+
+CREATE TABLE photos (
+  photo_id SERIAL PRIMARY KEY,
+  review_id INT,
+  url TEXT,
+  CONSTRAINT fk_reviews
+  FOREIGN KEY (review_id)
+  REFERENCES reviews(review_id)
+  ON DELETE CASCADE
+);
+
+COPY photos (photo_id, review_id, url) FROM '/Users/ian/Downloads/photos.csv'
+DELIMITERS ',' CSV header;
+
+
+CREATE INDEX photo_reviews on photos USING hash(review_id);
+
+
+
+
+
+
+CREATE TABLE characteristics (
+  characteristic_id SERIAL PRIMARY KEY,
+  product_id INT,
+  name TEXT
+);
+
+COPY characteristics (characteristic_id, product_id, name) FROM '/Users/ian/Downloads/characteristics.csv'
+DELIMITERS ',' CSV header;
+
+
+CREATE INDEX characteristics_products on characteristics USING hash(product_id);
+
+
+
+
+
+
+-- fill products table
+INSERT INTO products (product_id)
+SELECT DISTINCT c.product_id AS id
+FROM characteristics AS c;
+
+CREATE INDEX products_id on products USING hash(product_id);
+
+UPDATE products AS p
+SET
+characteristics = ARRAY(
+  SELECT c.name
+  FROM characteristics AS c
+  WHERE c.product_id = p.product_id
+),
+characteristics_ids =  ARRAY(
+  SELECT c.characteristic_id
+  FROM characteristics AS c
+  WHERE c.product_id = p.product_id
+)
+;
+
+-- SELECT * FROM products WHERE product_id = 234;
+
+
+
+
+
+
+CREATE TABLE metas (
+  meta_id SERIAL PRIMARY KEY,
+  characteristic_id INT NOT NULL,
+  review_id INT NOT NULL,
+  value INT NOT NULL,
+  product_id INT,
+  CONSTRAINT fk_characteristics
+  FOREIGN KEY (characteristic_id)
+  REFERENCES characteristics(characteristic_id)
+  ON DELETE CASCADE
+);
+
+COPY metas (meta_id, characteristic_id, review_id, value) FROM '/Users/ian/Downloads/metas.csv'
+DELIMITERS ',' CSV header;
+
+
+
+
+-- CREATE INDEX meta_reviews on metas USING hash(review_id);
+
+
+UPDATE reviews SET review_photos = ARRAY(
+  SELECT photos.url
+  FROM photos
+  WHERE photos.review_id = reviews.review_id
+);
+
+
+
+
+with t as (
+    select m.meta_id as rowid, r.product_id as calculatedvalue
+    from metas m
+    join reviews r on  m.review_id = r.review_id
+)
+update metas
+set product_id = t.calculatedvalue
+from t
+where meta_id = t.rowid
+;
+
+
+
+
+CREATE INDEX metas_products on metas USING hash(product_id);
+CREATE INDEX metas_chars on metas USING hash(characteristic_id);
+
+
+-- SELECT count(review_id) FROM metas; = 19327575
+-- SELECT count(product_id) FROM characteristics; = 3347679
+
+
+--
+SELECT p.characteristics, p.characteristics_ids
+FROM products AS p
+WHERE p.product_id = 21254
+
+WITH mvs AS (
+  SELECT m.value, m.characteristic_id AS id
+  FROM metas AS m
+  WHERE m.product_id = 21254
+)
+SELECT cvs.name,  mvs.value,
+FROM mvs
+JOIN (
+  SELECT p.characteristics, p.characteristics_ids AS id
+  FROM products AS p
+  WHERE p.product_id = 21254
+) AS cvs
+ON mvs.id = cvs.id
+;
+
+
+
+
+
+
+
+
+WITH pids AS (
+  SELECT DISTINCT c.product_id AS id
+  FROM characteristics AS c
+)
+INSERT INTO products (product_id)
+VALUES(SELECT id FROM pids)
+;
+
+
+
+-- postgres=# \timing
+
+
+WITH RECURSIVE emp_testnew  AS (
+  SELECT id, ename, emanager
+  FROM emp_test
+  WHERE id = 2
+  UNION ALL
+  SELECT e.id, e.ename, e.emanager
+  FROM emp_test e
+  INNER JOIN emp_testnew e1 ON e1.id = e.emanager
+)
+SELECT *
+FROM emp_testnew;
+
+
+
+
+
+
+-- parallel ?
+postgres=# create table ty(n int);
+CREATE TABLE
+postgres=# insert into ty values (generate_series(1,300000));
+INSERT 0 300000
+
+postgres=# analyze ty;
+ANALYZE
+postgres=# explain  select * from ty where n<=1;
+                             QUERY PLAN
+---------------------------------------------------------------------
+ Gather  (cost=1000.00..4536.88 rows=30 width=4)
+   Workers Planned: 1
+   ->  Parallel Seq Scan on ty  (cost=0.00..3533.88 rows=18 width=4)
+         Filter: (n <= 1)
+(4 rows)
+
+postgres=#
+
+
+
+
+

@@ -1,9 +1,68 @@
 const Models = require('./models');
-const {
-  Photos,
-  Metas,
-  Reviews,
-} = Models
+
+
+
+const createNew =  (newDocuments, modelName, save = true) => {
+
+  if (Array.isArray(newDocuments)) {
+    return createMany(newDocuments, modelName, save)
+  }
+  return Models[modelName].create(newDocuments)
+}
+
+const createProducts = (newProduct, save) => {
+  return createNew(newProduct, 'Products', save)
+}
+
+const createReviews = (newReviews, save) => {
+    return createNew(newReviews, 'Reviews', save)
+}
+
+const createMetas = (newMeta, save) => {
+  return createNew(newMeta, 'Metas', save)
+}
+
+const createPhotos = (newPhotos, save) => {
+  return createNew(newPhotos, 'Photos')
+}
+
+
+const createMany =  (newDocuments, modelName, save = true) => {
+
+  if (Array.isArray(newDocuments)) {
+    return Models[modelName].create(newDocuments)
+  }
+  return null
+}
+
+const createManyProducts = (newProduct, save) => {
+  return createMany(newProduct, 'Products', save)
+}
+
+const createManyReviews = (newReviews, save) => {
+    return createMany(newReviews, 'Reviews', save)
+}
+
+const createManyMetas = (newMeta, save) => {
+  return createMany(newMeta, 'Metas', save)
+}
+
+const createManyPhotos = (newPhotos, save) => {
+  return createMany(newPhotos, 'Photos')
+}
+
+module.exports = {
+  reviews: createReviews,
+  metas: createMetas,
+  photos: createPhotos,
+  products: createProducts,
+  many: {
+    reviews: createManyReviews,
+    metas: createManyMetas,
+    photos: createManyPhotos,
+    products: createManyProducts,
+  }
+}
 
 
 // const createNew =  (newDocuments, modelName, save = true) => {
@@ -23,67 +82,6 @@ const {
 //   }
 //   return newDoc
 // }
-
-
-const createNew =  (newDocuments, modelName, save = true) => {
-
-  if (Array.isArray(newDocuments)) {
-    return Promise.all(newDocuments.map(document => {
-      Models[modelName].create(document)
-    }))
-  }
-  return Models[modelName].create(newDocuments)
-}
-
-
-
-const createReviews = (newReviews, save) => {
-    return createNew(newReviews, 'Reviews', save)
-}
-
-const createMetas = (newMeta, save) => {
-  return createNew(newMeta, 'Metas', save)
-}
-
-const createPhotos = (newPhotos, save) => {
-  return createNew(newPhotos, 'Photos')
-}
-
-
-const createMany =  (newDocuments, modelName, save = true) => {
-
-  if (Array.isArray(newDocuments)) {
-    // return Models[modelName].bulkWrite({
-    //   insertMany: { "$set": newDocuments }
-    // })
-    return Models[modelName].create(newDocuments)
-  }
-  return null
-}
-
-
-const createManyReviews = (newReviews, save) => {
-    return createMany(newReviews, 'Reviews', save)
-}
-
-const createManyMetas = (newMeta, save) => {
-  return createMany(newMeta, 'Metas', save)
-}
-
-const createManyPhotos = (newPhotos, save) => {
-  return createMany(newPhotos, 'Photos')
-}
-
-module.exports = {
-  reviews: createReviews,
-  metas: createMetas,
-  photos: createPhotos,
-  many: {
-    reviews: createManyReviews,
-    metas: createManyMetas,
-    photos: createManyPhotos
-  }
-}
 
 
 

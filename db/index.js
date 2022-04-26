@@ -1,21 +1,23 @@
 
-var dbToLoad = process.env.DB
-var db;
-if (dbToLoad === 'MYSQL') {
-  db = require('../sequelize/index')
+// var dbToLoad = process.env.DB
+var DBToLoad = 'PG'
+var DB;
+if (DBToLoad === 'PG') {
+  DB = require('../postgres/index')
+  DBToLoad = "PG"
 }
 else {
-  db = require('../mongo/index')
-  dbToLoad = "MONGO"
+  DB = require('../mongo/index')
+  DBToLoad = "MONGO"
 }
-console.log(`CURRENT DB = ${dbToLoad}`)
+console.log(`CURRENT DB = ${DBToLoad}`)
 
 
-const toHydrate = JSON.parse(process.env.HYDRATE) || false
-console.log(`TO HYDRATE DB = ${toHydrate}`)
-if (toHydrate) {
-  db.checkForHydration()
-}
+// const toHydrate = JSON.parse(process.env.HYDRATE) || false
+// console.log(`TO HYDRATE DB = ${toHydrate}`)
+// if (toHydrate) {
+//   DB.checkForHydration()
+// }
 
-module.exports = db
+module.exports = DB
 

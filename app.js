@@ -8,7 +8,7 @@ const logger = require('koa-pino-logger')
 
 
 const app = new Koa();
-app.silent = true // disable console.errors
+// app.silent = true // disable console.errors
 // app.use(logger())
 app.use(compress({
   filter (content_type) {
@@ -25,97 +25,69 @@ app.use(compress({
 }))
 
 
+const { DB } = require('./db/index.js')
 
-const db = require('./db/index.js')
-console.log('app.js db keys: ', Object.keys(db))
-
-const fakeMeta = {
-  characteristics:{
-    fake:'yup'
-  }
-}
-
-const fakeReviews = [
-{
-  reviewer_name: 'tim',
-  summary: 'its nice',
-  body: 'this be fake',
-},
-{
-  reviewer_name: 'Not also tim',
-  summary: 'its not nice',
-  body: 'this be not fake',
-}
-]
-const fakeDb = {
-  GET: {
-    meta: ((productId) => new Promise((res, rej) => res(fakeMeta))),
-    reviews: ((productId) => new Promise((res, rej) => res(fakeReviews)))
-  }
-}
-
-// db.reviews.find({product_id: 317311})
 
 app.use(async (ctx, next) => {
-  ctx.state.start = Date.now()
-  // ctx.log.info('API start')
-  // console.log(ctx.log)
-  const { request, response } = ctx
-
-  const requests = ctx.path.split(/\//g).filter(str => !!str.length)
-  const { product_id } = ctx.query
-  console.log(`\n\nproduct_id: ${product_id} requests: ${requests}`)
-  // ctx.log.info(`\n\nproduct_id: ${product_id} requests: ${requests}\n\n`)
-  // ctx.state.data = await fakeDb[ctx.method][requests[0]](product_id)
-  ctx.state.data = await db[ctx.method][requests[0]]({ product_id })
-
-  next()
-
+  try {
+    const requestPath = ctx.path.split(/\//g).filter(str => !!str.length)
+    const action = ctx.method
+    if (requestPath.length) {
+      ctx.state.data = await DB[action][requestPath[0]](ctx.query)
+    }
+    next()
+  } catch (err) {
+    console.log('REQUEST ERROR ', ctx.method, ctx.path)
+    console.log(err)
+    ctx.status = 500;
+    ctx.body = { error: true }
+  }
 })
 
 app.use(async (ctx, next) => {
-  console.log('ctx.state.data', ctx.state.data)
-  if(ctx.state.data) {
-    ctx.body = JSON.stringify(ctx.state.data)
-    ctx.status = 200
+  try {
+    if(ctx.state.data) {
+      ctx.status = 200
+      ctx.body = ctx.state.data
+    }
+    else {
+      ctx.status = 404
+    }
+  } catch (err) {
+    console.log('SEND ERROR ', ctx.method, ctx.path, ctx.state.data)
+    ctx.status = 500;
+    ctx.body = { error: true }
   }
-  else {
-    ctx.body = JSON.stringify({ error: true })
-    console.log('error no data')
-  }
-
 })
 
 
-const PORT = process.env.PORT || 3000;
-// app.listen(PORT);
-console.log(`Listening at http://localhost:${PORT}`);
+if (!process.env.CLUSTER) {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT);
+  console.log(`\n\n\n\n\n~~~~~~~~~~~~~Listening at http://localhost:${PORT}~~~~~~~~~~~~~\n\n\n\n\n`);
+}
+
+module.exports = app
 
 
 
 
 
-// let numRequests = 0;
 
-// const getTime = (seconds) => {
-//   var hours = Math.floor(seconds / 3600)
-//   seconds = seconds % 3600
-//   var minutes = Math.floor(seconds / 60)
-//   seconds = seconds % 60
-//   return hours ? `${hours} hours, ${minutes} minutes, and ${seconds} seconds` : `${minutes} minutes and ${seconds} seconds`
+// console.log(`All DB keys: ${Object.keys(DB)}`)
 
-// }
+// const logTime = 20000
+// let queries = 0
+// let totalTime = 0
 
-// if (requestLogs) {
-//   console.log('requestLogs: ', requestLogs)
-//   const logInterval = 10000//ms
-//   let upTime = 0;
-//   setInterval(() =>{
-//     upTime += logInterval
-//     var seconds = Math.round(upTime/1000)
-//     const time = getTime(seconds)
-//     var reqPerSec = ( numRequests / seconds )
-//     reqPerSec = +reqPerSec.toFixed(2);
-//     console.log(`\nSTATUS update:\n  number of requests: ${numRequests}\n  uptime: ${time} \n  requests/second: ${reqPerSec}`)
-//   }, logInterval)
-// }
+// setInterval(() => {
+//   totalTime += logTime
+//   console.log(`Total queries ${[queries]} over a time of ${totalTime} ms for pid: ${process.pid}`)
+//   console.log(`PRODUCT data fetched with an average time of ${[(queries / totalTime)]} ms\n`)
+// }, logTime)
+
+
+
+  // console.log(`\n\nREQUEST action: ${action}`)
+  // console.log(`Action DB keys: ${Object.keys(DB[action])}`)
+  // console.log(`ACTION path: ${requestPath}`)

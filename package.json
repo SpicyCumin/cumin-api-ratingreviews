@@ -4,6 +4,9 @@
   "description": "microservice for reviews to the cumin-client",
   "main": "app.js",
   "scripts": {
+    "cluster:dev": "env-cmd -f .env.cluster.config nodemon index.js",
+    "cluster:start": "env-cmd -f .env.cluster.config node index.js",
+    "benchmark": " node __tests__/benchmark.js",
     "server:dev": "env-cmd -f .env.config nodemon app.js",
     "server:start": "env-cmd -f .env.config node app.js"
   },
@@ -18,6 +21,7 @@
   },
   "homepage": "https://github.com/SpicyCumin/cumin-api-ratingreviews#readme",
   "devDependencies": {
+    "autocannon": "^7.8.1",
     "nodemon": "^2.0.15"
   },
   "dependencies": {
