@@ -32,17 +32,17 @@ const getProductMeta = async ({ product_id }) => {
   return {}
 }
 
-setInterval(() => {
-  getProductMeta({ product_id : 34545 })
-  .then(res => {
-    console.log('\nRESPONSE')
-    console.log('query res', res)
-  })
-  .catch(err => {
-    console.log('\nERROR')
-    console.log('query err', err)
-  })
-}, 5000)
+// setInterval(() => {
+//   getProductMeta({ product_id : 34545 })
+//   .then(res => {
+//     console.log('\nRESPONSE')
+//     console.log('query res', res)
+//   })
+//   .catch(err => {
+//     console.log('\nERROR')
+//     console.log('query err', err)
+//   })
+// }, 5000)
 
 const GET = {
   reviews: getProductReview,
