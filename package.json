@@ -30,6 +30,7 @@
     "koa": "^2.13.4",
     "koa-compress": "^5.1.0",
     "koa-pino-logger": "^4.0.0",
+    "koa-static": "^5.0.0",
     "mongoose": "^6.3.0",
     "sequelize": "^6.19.0"
   }

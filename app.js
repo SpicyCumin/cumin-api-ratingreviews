@@ -1,6 +1,7 @@
 "use strict";
 
 const Koa = require('koa');
+const serve = require('koa-static');
 const path = require("path");
 const compress = require('koa-compress');
 const logger = require('koa-pino-logger')
@@ -10,6 +11,7 @@ const logger = require('koa-pino-logger')
 const app = new Koa();
 // app.silent = true // disable console.errors
 // app.use(logger())
+app.use(serve('./public'));
 app.use(compress({
   filter (content_type) {
   	return /text/i.test(content_type)
@@ -70,9 +72,13 @@ if (!process.env.CLUSTER) {
 module.exports = app
 
 
+app.get('loaderIO suff here', (req, res) => {
+  res.send('loaderIO stuff here');
+});
 
 
 
+//  loaderio-457d2a19fe8a8a04e05e7f81dffc717a
 
 // console.log(`All DB keys: ${Object.keys(DB)}`)
 

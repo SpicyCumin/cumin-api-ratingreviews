@@ -9,7 +9,7 @@ const query = async (params) => {
       return res.rows;
   } catch (err) {
     console.log(`PSQL GET QUERY ERROR for: \nParams: ${JSON.stringify(params)}`)
-    // console.log(err)
+    console.log(err)
     return []
   }
 }
