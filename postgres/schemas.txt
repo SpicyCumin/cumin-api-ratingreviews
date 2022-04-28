@@ -154,85 +154,10 @@ CREATE INDEX metas_products on metas USING hash(product_id);
 CREATE INDEX metas_chars on metas USING hash(characteristic_id);
 
 
--- SELECT count(review_id) FROM metas; = 19327575
--- SELECT count(product_id) FROM characteristics; = 3347679
-
-
---
-SELECT p.characteristics, p.characteristics_ids
-FROM products AS p
-WHERE p.product_id = 21254
-
-WITH mvs AS (
-  SELECT m.value, m.characteristic_id AS id
-  FROM metas AS m
-  WHERE m.product_id = 21254
-)
-SELECT cvs.name,  mvs.value,
-FROM mvs
-JOIN (
-  SELECT p.characteristics, p.characteristics_ids AS id
-  FROM products AS p
-  WHERE p.product_id = 21254
-) AS cvs
-ON mvs.id = cvs.id
-;
 
 
 
 
-
-
-
-
-WITH pids AS (
-  SELECT DISTINCT c.product_id AS id
-  FROM characteristics AS c
-)
-INSERT INTO products (product_id)
-VALUES(SELECT id FROM pids)
-;
-
-
-
--- postgres=# \timing
-
-
-WITH RECURSIVE emp_testnew  AS (
-  SELECT id, ename, emanager
-  FROM emp_test
-  WHERE id = 2
-  UNION ALL
-  SELECT e.id, e.ename, e.emanager
-  FROM emp_test e
-  INNER JOIN emp_testnew e1 ON e1.id = e.emanager
-)
-SELECT *
-FROM emp_testnew;
-
-
-
-
-
-
--- parallel ?
-postgres=# create table ty(n int);
-CREATE TABLE
-postgres=# insert into ty values (generate_series(1,300000));
-INSERT 0 300000
-
-postgres=# analyze ty;
-ANALYZE
-postgres=# explain  select * from ty where n<=1;
-                             QUERY PLAN
----------------------------------------------------------------------
- Gather  (cost=1000.00..4536.88 rows=30 width=4)
-   Workers Planned: 1
-   ->  Parallel Seq Scan on ty  (cost=0.00..3533.88 rows=18 width=4)
-         Filter: (n <= 1)
-(4 rows)
-
-postgres=#
 
 
 

@@ -26,12 +26,9 @@ const setupWorkerProcesses = () => {
     core++
   }
 
-
-
   cluster.on('online', (worker) => {
       console.log('Worker ' + worker.process.pid + ' is listening');
   });
-
 
   cluster.on('exit', (worker, code, signal) => {
       console.log('Worker ' + worker.process.pid + ' died with code: ' + code + ', and signal: ' + signal);
@@ -51,7 +48,6 @@ const setupWorkerProcesses = () => {
 const setUpExpress = () => {
 
   app.server = http.createServer(app.callback());
-
   app.server.listen(PORT, () => {
       console.log(`Started server on => http://localhost:${PORT} for Process Id ${process.pid}`);
   });

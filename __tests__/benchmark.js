@@ -18,9 +18,7 @@ function run (url) {
     connections: 120,
     duration: 30,
     method: 'GET',
-    // headers: {
-    //   product_id: genRandNum()
-    // },
+
   })
 
   autocannon.track(inst, { outputStream })

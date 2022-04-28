@@ -144,6 +144,7 @@ FROM allVals;
 `
 
 
+
 const buildCharacteristics = (product_id) => {
   return query({
     text: charQueryText,

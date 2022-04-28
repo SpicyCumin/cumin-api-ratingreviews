@@ -1,9 +1,11 @@
 const { Pool } = require('pg')
 
-// PGB
+
+const host = 'ec2-3-227-231-159.compute-1.amazonaws.com'
 const config = {
   database: 'sdc',
-  user: 'ian',
+  host,
+  user: 'postgres',
   port: 6432,
   max: 30, //max number of clients per server
 }
@@ -13,3 +15,8 @@ const pool = new Pool(config)
 console.log(connectMsg)
 
 module.exports = { pool }
+
+
+// app.get('loaderIO suff here', (req, res) => {
+//   res.send('loaderIO stuff here');
+// });

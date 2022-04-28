@@ -22,31 +22,27 @@ const getProductReview = async ({ product_id, page, count, sort }) => {
 const getProductMeta = async ({ product_id }) => {
 
   if(product_id) {
-    // const queries = await Promise.all([
-    //   SELECT.reviews.product_id(product_id),
-    //   SELECT.metas.product_id(product_id),
-    //   SELECT.characteristics.product_id(product_id),
-    // ])
-    // return build.meta(product_id, ...queries)
+
     const queries = await Promise.all([
       BUILD.reviewsData(product_id),
       BUILD.characteristics(product_id),
     ])
-    // console.log(queries)
     return make.meta(product_id, ...queries)
   }
   return {}
 }
 
-
-
-// const testId = 242069
-// getProductMeta({product_id: testId})
-// .then(res => console.log('getProductMeta res ',res))
-// BUILD.characteristics(testId)
-// .then(res => console.log('build char res ',res))
-// BUILD.reviewsData(testId)
-// .then(res => console.log('build char res ',res))
+setInterval(() => {
+  getProductMeta({ product_id : 34545 })
+  .then(res => {
+    console.log('\nRESPONSE')
+    console.log('query res', res)
+  })
+  .catch(err => {
+    console.log('\nERROR')
+    console.log('query err', err)
+  })
+}, 5000)
 
 const GET = {
   reviews: getProductReview,
@@ -54,7 +50,6 @@ const GET = {
   metas: getProductMeta,
 }
 
-// GET.characteristics = getCharacteristics
 
 
 module.exports = { GET }
