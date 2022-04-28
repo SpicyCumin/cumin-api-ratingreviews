@@ -72,10 +72,6 @@ if (!process.env.CLUSTER) {
 module.exports = app
 
 
-app.get('loaderIO suff here', (req, res) => {
-  res.send('loaderIO stuff here');
-});
-
 
 
 //  loaderio-457d2a19fe8a8a04e05e7f81dffc717a
