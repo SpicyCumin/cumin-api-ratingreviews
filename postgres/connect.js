@@ -7,7 +7,7 @@ const config = {
   host,
   user: 'postgres',
   port: 6432,
-  max: 30, //max number of clients per server
+  max: 15, //max number of clients per server
 }
 
 

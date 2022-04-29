@@ -1,0 +1,10 @@
+version: '3.9'
+services:
+  node:
+    image: sdc-node
+    container_name: sdc-node
+    ports:
+      - 3000:3000
+    build:
+      context: .
+      dockerfile: Dockerfile

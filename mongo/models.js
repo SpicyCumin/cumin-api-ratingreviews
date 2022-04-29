@@ -98,7 +98,7 @@ const ReviewsSchema = new Schema({
     default: [],
   },
   meta: {
-    type: [MetasSchema],
+    type: [ MetasSchema ],
     default: [],
   },
 
