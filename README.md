@@ -19,7 +19,7 @@ We supplied data to this front end <a href="https://github.com/caminitodelrey/e-
 Project is created with:
 
 ![Node](https://img.shields.io/badge/-Node-9ACD32?logo=node.js&logoColor=white&style=for-the-badge)
-<img src="https://i.imgur.com/1JT5bmg.png" height="auto" width="10.25%" />
+<img src="https://i.imgur.com/1JT5bmg.png" height="auto" width="102" />
 ![PostgreSQL](https://img.shields.io/badge/-PostgreSQL-4169E1?logo=postgresql&logoColor=white&style=for-the-badge)
 ![AWS](https://img.shields.io/badge/-AWS-232F3E?logo=amazonaws&logoColor=white&style=for-the-badge)
 ![Docker](https://img.shields.io/badge/-Docker-2496ED?logo=docker&logoColor=white&style=for-the-badge)
